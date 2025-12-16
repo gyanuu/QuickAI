@@ -15,8 +15,9 @@ cloudinary.config({
 });
 
 const AI = new OpenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+  apiKey: process.env.GITHUB_MODELS_API_KEY,
+  baseURL: "https://models.github.ai/inference",
+  maxRetries: 0
 });
 
 export const generateArticle = async (req, res) => {
@@ -34,7 +35,7 @@ export const generateArticle = async (req, res) => {
     }
 
     const response = await AI.chat.completions.create({
-      model: "gemini-2.0-flash",
+      model: "openai/gpt-4o",
       messages: [
         {
           role: "user",
@@ -61,6 +62,9 @@ export const generateArticle = async (req, res) => {
     res.json({success:true,content})
   } catch (error) {
     console.log(error.message)
+    if (error.status === 402 || (error.response && error.response.status === 402)) {
+      return res.json({ success: false, message: "AI Service Payment Required: Credits exhausted." });
+    }
     res.json({success:false,message:error.message})
   }
 };
@@ -80,7 +84,7 @@ export const generateBlogTitle = async (req, res) => {
     }
 
     const response = await AI.chat.completions.create({
-      model: "gemini-2.0-flash",
+      model: "openai/gpt-4o",
       messages: [
         {
           role: "user",
@@ -107,6 +111,9 @@ export const generateBlogTitle = async (req, res) => {
     res.json({success:true,content})
   } catch (error) {
     console.log(error.message)
+    if (error.status === 402 || (error.response && error.response.status === 402)) {
+      return res.json({ success: false, message: "AI Service Payment Required: Credits exhausted." });
+    }
     res.json({success:false,message:error.message})
   }
 };
@@ -143,6 +150,9 @@ export const generateImage = async (req, res) => {
     res.json({ success: true, content: secure_url })
   } catch (error) {
     console.log(error.message)
+    if (error.status === 402 || (error.response && error.response.status === 402)) {
+      return res.json({ success: false, message: "Clipdrop API credits exhausted. Please upgrade your Clipdrop plan." });
+    }
     res.json({success:false,message:error.message})
   }
 };
@@ -264,7 +274,7 @@ export const resumeReview= async (req, res) => {
     const prompt =`Review the following resume and provide constructive feedback on its strengths,weaknesses,and areas for improvement. Resume Content:\n\n${pdfData.text}`
 
     const response = await AI.chat.completions.create({
-      model: "gemini-2.0-flash",
+      model: "openai/gpt-4o",
       messages: [
         {
           role: "user",
@@ -291,6 +301,9 @@ export const resumeReview= async (req, res) => {
     res.json({ success: true, content: content})
   } catch (error) {
     console.log(error.message)
+    if (error.status === 402 || (error.response && error.response.status === 402)) {
+      return res.json({ success: false, message: "AI Service Payment Required: Credits exhausted." });
+    }
     res.json({success:false,message:error.message})
   }
 };
